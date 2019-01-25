@@ -6,6 +6,10 @@ import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheAtomicityMode;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.DataPageEvictionMode;
+import org.apache.ignite.configuration.DataRegionConfiguration;
+import org.apache.ignite.configuration.DataStorageConfiguration;
+import org.apache.ignite.configuration.IgniteConfiguration;
 import org.dcache.nfs.ExportFile;
 import org.dcache.nfs.v3.MountServer;
 import org.dcache.nfs.v3.NfsServerV3;
@@ -38,22 +42,46 @@ public class NfsMain {
         	
         props.load(configInput);
         
+
+//        IgniteConfiguration igniteConfiguration = new IgniteConfiguration(); 
+//
+//        DataStorageConfiguration dataStorageConfig = new DataStorageConfiguration(); 
+//
+//        long offHeapMemoryMax = 2L * 1024 * 1024 * 1024; 
+//
+//        DataRegionConfiguration dataRegionConfig = new DataRegionConfiguration(); 
+//        dataRegionConfig.setInitialSize((long) Math.ceil(0.25 * offHeapMemoryMax)); // 20% of 2GB
+//        dataRegionConfig.setMaxSize(offHeapMemoryMax); // 256MB, for testing purposes 
+//        
+//        dataRegionConfig.setPageEvictionMode(DataPageEvictionMode.RANDOM_LRU); 
+//        dataRegionConfig.setEvictionThreshold(0.7); 
+//        dataRegionConfig.setEmptyPagesPoolSize(10000); 
+//        dataRegionConfig.setName("2GB_Region"); 
+//        
+//        dataStorageConfig.setDataRegionConfigurations(dataRegionConfig); 
+//        igniteConfiguration.setDataStorageConfiguration(dataStorageConfig); 
+        
+
         Ignite ignite = Ignition.start(props.getProperty("cache.ignite.conf"));
         
         //or load default from src/main/resources
         // Ignite ignite = Ignition.start("default-config.xml");
         
         
-        CacheConfiguration config = new CacheConfiguration("content-access-cache");
+    //    CacheConfiguration config = new CacheConfiguration("content-access-cache");
         
         //set any config here before start cache
         //config.setCacheMode(CacheMode.PARTITIONED);  //example
-        config.setAtomicityMode(CacheAtomicityMode.ATOMIC);
-        config.setBackups(0);
-        config.setDataRegionName("2GB_Region");
+        //config.setAtomicityMode(CacheAtomicityMode.ATOMIC);
+        //config.setBackups(0);
+     //   config.setDataRegionName("2GB_Region");
+        
+     //   igniteConfiguration.setCacheConfiguration(config); 
         //*** 
+        
+     //   Ignite ignite = Ignition.start(igniteConfiguration); 
        
-	IgniteCache<String, byte[]> cache = ignite.getOrCreateCache(config);
+	IgniteCache<String, byte[]> cache = ignite.getOrCreateCache("content-access-cache");
 
         VirtualFileSystem vfs = new LocalVFS( new File(args[0]), cache, ignite);
         OncRpcSvc nfsSvc = new OncRpcSvcBuilder()
